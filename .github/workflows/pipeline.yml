@@ -1,4 +1,3 @@
-# SecureShop CI/CD pipeline skeleton (workshop placeholder)
 name: pipeline
 
 on:
@@ -7,11 +6,54 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
-  placeholder:
+  python-sast:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: TODO
-        run: echo "Add build, test, and SAST steps here"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run Bandit
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit
+          python -m bandit -r ./user-service ./product-service ./order-service ./inventory-service -f json -o bandit-results.json
+          python scripts/bandit_json_to_sarif.py bandit-results.json bandit-results.sarif
+
+      - name: Upload Bandit SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: bandit-results.sarif
+          category: bandit
+
+  semgrep-sast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+          semgrep --config=auto --sarif --output semgrep-results.sarif .
+
+      - name: Upload Semgrep SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep-results.sarif
+          category: semgrep

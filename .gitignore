@@ -1,0 +1,6 @@
+bandit-results.json
+bandit-results.sarif
+semgrep-results.sarif
+node_modules/
+__pycache__/
+*.pyc

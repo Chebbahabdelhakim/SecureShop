@@ -52,7 +52,45 @@ docker compose down
 
 ## CI skeleton
 
-GitHub Actions workflow placeholder: `.github/workflows/pipeline.yml`.
+GitHub Actions workflow: `.github/workflows/pipeline.yml`.
+
+## SAST
+
+This workshop repository includes two SAST tracks:
+
+- `Bandit` for the Python services
+- `Semgrep` for the full repository, including the Node.js services
+
+### Run locally
+
+Install the tools:
+
+```bash
+python -m pip install --user bandit semgrep
+```
+
+Run Bandit against the Python services:
+
+```bash
+python -m bandit -r ./user-service ./product-service ./order-service ./inventory-service
+python -m bandit -r ./user-service ./product-service ./order-service ./inventory-service -f json -o bandit-results.json
+python scripts/bandit_json_to_sarif.py bandit-results.json bandit-results.sarif
+```
+
+Run Semgrep against the repository:
+
+```bash
+semgrep --config=auto --sarif --output semgrep-results.sarif .
+```
+
+### GitHub Actions behavior
+
+On every push and pull request to `main`, the workflow:
+
+- runs `Bandit` on the Python services
+- converts Bandit JSON output to SARIF
+- runs `Semgrep` on the repository
+- uploads both SARIF reports to GitHub Code Scanning so findings appear in the Security tab
 
 ## Workshop note
 
