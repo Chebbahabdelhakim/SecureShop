@@ -1,0 +1,14 @@
+{
+  "name": "payment-service",
+  "version": "1.0.0",
+  "description": "SecureShop payment microservice (workshop)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "4.19.2",
+    "lodash": "4.17.19",
+    "sqlite3": "5.1.7"
+  }
+}
